@@ -162,9 +162,7 @@ def _pull_package(
 
         # Finds all elements from the above string representation of a list
         reqs_element_pattern = r"\'(.*?)\'"
-        package_reqs = re.findall(reqs_element_pattern, list_reqs[0])
-
-        if package_reqs:
+        if package_reqs := re.findall(reqs_element_pattern, list_reqs[0]):
             requirements_txt = metadata.source_dir / "requirements.txt"
             _append_package_reqs(requirements_txt, package_reqs, package_name)
 
@@ -466,17 +464,16 @@ def _install_files(  # pylint: disable=too-many-arguments, too-many-locals
 def _find_config_files(
     source_config_dir: Path, glob_patterns: List[str]
 ) -> List[Tuple[Path, str]]:
-    config_files = []  # type: List[Tuple[Path, str]]
-
-    if source_config_dir.is_dir():
-        config_files = [
+    return (
+        [
             (path, path.parent.relative_to(source_config_dir).as_posix())
             for glob_pattern in glob_patterns
             for path in source_config_dir.glob(glob_pattern)
             if path.is_file()
         ]
-
-    return config_files
+        if source_config_dir.is_dir()
+        else []
+    )
 
 
 def _get_default_version(metadata: ProjectMetadata, micropkg_module_path: str) -> str:
@@ -791,13 +788,11 @@ def _get_package_artifacts(
     """From existing package, returns in order:
     source_path, tests_path, config_path
     """
-    artifacts = (
+    return (
         source_path / package_name,
         source_path / "tests",
-        # package_data (non-python files) needs to live inside one of the packages
         source_path / package_name / "config",
     )
-    return artifacts
 
 
 def _append_package_reqs(

@@ -117,11 +117,11 @@ class _FrozenDatasets:
 
     # Don't allow users to add/change attributes on the fly
     def __setattr__(self, key, value):
-        msg = "Operation not allowed! "
-        if key in self.__dict__:
-            msg += "Please change datasets through configuration."
-        else:
-            msg += "Please use DataCatalog.add() instead."
+        msg = "Operation not allowed! " + (
+            "Please change datasets through configuration."
+            if key in self.__dict__
+            else "Please use DataCatalog.add() instead."
+        )
         raise AttributeError(msg)
 
 
@@ -260,8 +260,7 @@ class DataCatalog:
         save_version = save_version or generate_timestamp()
         load_versions = copy.deepcopy(load_versions) or {}
 
-        missing_keys = load_versions.keys() - catalog.keys()
-        if missing_keys:
+        if missing_keys := load_versions.keys() - catalog.keys():
             raise DataSetNotFoundError(
                 f"`load_versions` keys [{', '.join(sorted(missing_keys))}] "
                 f"are not found in the catalog."
@@ -287,8 +286,9 @@ class DataCatalog:
         if data_set_name not in self._data_sets:
             error_msg = f"DataSet '{data_set_name}' not found in the catalog"
 
-            matches = difflib.get_close_matches(data_set_name, self._data_sets.keys())
-            if matches:
+            if matches := difflib.get_close_matches(
+                data_set_name, self._data_sets.keys()
+            ):
                 suggestions = ", ".join(matches)  # type: ignore
                 error_msg += f" - did you mean one of these instead: {suggestions}"
 
@@ -339,9 +339,7 @@ class DataCatalog:
             "Loading data from `%s` (%s)...", name, type(dataset).__name__
         )
 
-        result = dataset.load()
-
-        return result
+        return dataset.load()
 
     def save(self, name: str, data: Any) -> None:
         """Save data to a registered data set.

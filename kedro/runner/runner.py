@@ -67,8 +67,7 @@ class AbstractRunner(ABC):
 
         catalog = catalog.shallow_copy()
 
-        unsatisfied = pipeline.inputs() - set(catalog.list())
-        if unsatisfied:
+        if unsatisfied := pipeline.inputs() - set(catalog.list()):
             raise ValueError(
                 f"Pipeline input(s) {unsatisfied} not found in the DataCatalog"
             )
@@ -240,7 +239,7 @@ def _collect_inputs_from_hook(
                 f"dataset names to updated values, got `{response_type}` instead."
             )
         response = response or {}
-        additional_inputs.update(response)
+        additional_inputs |= response
 
     return additional_inputs
 
@@ -295,7 +294,7 @@ def _run_node_sequential(
     additional_inputs = _collect_inputs_from_hook(
         node, catalog, inputs, is_async, hook_manager, session_id=session_id
     )
-    inputs.update(additional_inputs)
+    inputs |= additional_inputs
 
     outputs = _call_node_run(
         node, catalog, inputs, is_async, hook_manager, session_id=session_id

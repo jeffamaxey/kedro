@@ -183,7 +183,7 @@ def _create_kernel(kernel_name: str, display_name: str) -> None:
 @click.pass_obj  # this will pass the metadata as first argument
 def convert_notebook(
     metadata: ProjectMetadata, all_flag, overwrite_flag, filepath, env, **kwargs
-):  # pylint: disable=unused-argument, too-many-locals
+):    # pylint: disable=unused-argument, too-many-locals
     """Convert selected or all notebooks found in a Kedro project
     to Kedro code, by exporting code from the appropriately-tagged cells:
     Cells tagged as `node` will be copied over to a Python file matching
@@ -214,8 +214,9 @@ def convert_notebook(
         notebooks = [Path(f) for f in filepath]
 
     counter = Counter(n.stem for n in notebooks)
-    non_unique_names = [name for name, counts in counter.items() if counts > 1]
-    if non_unique_names:
+    if non_unique_names := [
+        name for name, counts in counter.items() if counts > 1
+    ]:
         names = ", ".join(non_unique_names)
         raise KedroCliError(
             f"Found non-unique notebook names! Please rename the following: {names}"
@@ -231,10 +232,10 @@ def convert_notebook(
         output_path = output_dir / f"{notebook.stem}.py"
 
         if output_path.is_file():
-            overwrite = overwrite_flag or click.confirm(
-                f"Output file {output_path} already exists. Overwrite?", default=False
-            )
-            if overwrite:
+            if overwrite := overwrite_flag or click.confirm(
+                f"Output file {output_path} already exists. Overwrite?",
+                default=False,
+            ):
                 _export_nodes(notebook, output_path)
         else:
             _export_nodes(notebook, output_path)
@@ -259,13 +260,12 @@ def _export_nodes(filepath: Path, output_path: Path) -> None:
         raise KedroCliError(
             f"Provided filepath is not a Jupyter notebook: {filepath}"
         ) from exc
-    cells = [
+    if cells := [
         cell
         for cell in content["cells"]
-        if cell["cell_type"] == "code" and "node" in cell["metadata"].get("tags", {})
-    ]
-
-    if cells:
+        if cell["cell_type"] == "code"
+        and "node" in cell["metadata"].get("tags", {})
+    ]:
         output_path.write_text("")
         for cell in cells:
             _append_source_code(cell, output_path)

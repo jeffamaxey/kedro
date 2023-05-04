@@ -218,8 +218,7 @@ def str_node_inputs_list():
 @pytest.fixture
 def complex_pipeline(pipeline_list_with_lists):
     nodes = pipeline_list_with_lists["nodes"]
-    pipeline = Pipeline(nodes)
-    return pipeline
+    return Pipeline(nodes)
 
 
 @pytest.fixture(

@@ -110,8 +110,7 @@ class _ProjectPipelines(MutableMapping):
     @staticmethod
     def _get_pipelines_registry_callable(pipelines_module: str):
         module_obj = importlib.import_module(pipelines_module)
-        register_pipelines = getattr(module_obj, "register_pipelines")
-        return register_pipelines
+        return getattr(module_obj, "register_pipelines")
 
     def _load_data(self):
         """Lazily read pipelines defined in the pipelines registry module"""
