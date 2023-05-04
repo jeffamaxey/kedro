@@ -171,12 +171,10 @@ class KedroSession:
             **_describe_git(session._project_path),
         }
 
-        ctx = click.get_current_context(silent=True)
-        if ctx:
+        if ctx := click.get_current_context(silent=True):
             session_data["cli"] = _jsonify_cli_context(ctx)
 
-        env = env or os.getenv("KEDRO_ENV")
-        if env:
+        if env := env or os.getenv("KEDRO_ENV"):
             session_data["env"] = env
 
         if extra_params:
@@ -252,7 +250,7 @@ class KedroSession:
         config_loader = self._get_config_loader()
 
         context_class = settings.CONTEXT_CLASS
-        context = context_class(
+        return context_class(
             package_name=self._package_name,
             project_path=self._project_path,
             config_loader=config_loader,
@@ -260,7 +258,6 @@ class KedroSession:
             extra_params=extra_params,
             hook_manager=self._hook_manager,
         )
-        return context
 
     def _get_config_loader(self) -> ConfigLoader:
         """An instance of the config loader."""

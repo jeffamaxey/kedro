@@ -106,8 +106,7 @@ def _get_config_from_patterns(
             config_filepaths=config_filepaths, ac_template=ac_template
         )
 
-        common_keys = config.keys() & new_conf.keys()
-        if common_keys:
+        if common_keys := config.keys() & new_conf.keys():
             sorted_keys = ", ".join(sorted(common_keys))
             msg = (
                 "Config from path `%s` will override the following "
@@ -115,7 +114,7 @@ def _get_config_from_patterns(
             )
             _config_logger.info(msg, conf_path, sorted_keys)
 
-        config.update(new_conf)
+        config |= new_conf
         processed_files |= set(config_filepaths)
 
     if not processed_files:
@@ -192,7 +191,7 @@ def _load_configs(config_filepaths: List[Path], ac_template: bool) -> Dict[str, 
         single_config = _load_config_file(config_filepath, ac_template=ac_template)
         _check_duplicate_keys(seen_file_to_keys, config_filepath, single_config)
         seen_file_to_keys[config_filepath] = single_config.keys()
-        aggregate_config.update(single_config)
+        aggregate_config |= single_config
 
     return aggregate_config
 
@@ -205,8 +204,7 @@ def _lookup_config_filepaths(
 ) -> List[Path]:
     config_files = _path_lookup(conf_path, patterns)
 
-    seen_files = config_files & processed_files
-    if seen_files:
+    if seen_files := config_files & processed_files:
         logger.warning(
             "Config file(s): %s already processed, skipping loading...",
             ", ".join(str(seen) for seen in sorted(seen_files)),
@@ -236,12 +234,10 @@ def _check_duplicate_keys(
     duplicates = []
 
     for processed_file, keys in processed_files.items():
-        overlapping_keys = conf.keys() & keys
-
-        if overlapping_keys:
+        if overlapping_keys := conf.keys() & keys:
             sorted_keys = ", ".join(sorted(overlapping_keys))
             if len(sorted_keys) > 100:
-                sorted_keys = sorted_keys[:100] + "..."
+                sorted_keys = f"{sorted_keys[:100]}..."
             duplicates.append(f"{processed_file}: {sorted_keys}")
 
     if duplicates:

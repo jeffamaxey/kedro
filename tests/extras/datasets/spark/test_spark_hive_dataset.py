@@ -237,13 +237,7 @@ class TestSparkHiveDataSet:
             write_mode="upsert",
             table_pk=_test_columns,
         )
-        with pytest.raises(
-            DataSetError,
-            match=re.escape(
-                f"Columns {str(_test_columns)} selected as primary key(s) "
-                f"not found in table default_1.table_1",
-            ),
-        ):
+        with pytest.raises(DataSetError, match=re.escape(f"Columns {_test_columns} selected as primary key(s) not found in table default_1.table_1")):
             dataset.save(_generate_spark_df_one())
 
     def test_invalid_write_mode_provided(self):

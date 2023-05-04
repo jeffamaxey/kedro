@@ -34,7 +34,7 @@ ENTRY_POINT_GROUPS = {
 }
 
 
-def call(cmd: List[str], **kwargs):  # pragma: no cover
+def call(cmd: List[str], **kwargs):    # pragma: no cover
     """Run a subprocess command and raise if it fails.
 
     Args:
@@ -45,9 +45,7 @@ def call(cmd: List[str], **kwargs):  # pragma: no cover
         click.exceptions.Exit: If `subprocess.run` returns non-zero code.
     """
     click.echo(" ".join(shlex.quote(c) for c in cmd))
-    # pylint: disable=subprocess-run-check
-    code = subprocess.run(cmd, **kwargs).returncode
-    if code:
+    if code := subprocess.run(cmd, **kwargs).returncode:
         raise click.exceptions.Exit(code=code)
 
 
@@ -292,7 +290,7 @@ def split_string(ctx, param, value):  # pylint: disable=unused-argument
 def env_option(func_=None, **kwargs):
     """Add `--env` CLI option to a function."""
     default_args = dict(type=str, default=None, help=ENV_HELP)
-    kwargs = {**default_args, **kwargs}
+    kwargs = default_args | kwargs
     opt = click.option("--env", "-e", **kwargs)
     return opt(func_) if func_ else opt
 
@@ -338,7 +336,7 @@ def load_entry_points(name: str) -> Sequence[click.MultiCommand]:
     return entry_point_commands
 
 
-def _config_file_callback(ctx, param, value):  # pylint: disable=unused-argument
+def _config_file_callback(ctx, param, value):    # pylint: disable=unused-argument
     """CLI callback that replaces command line options
     with values specified in a config file. If command line
     options are passed, they override config file values.
@@ -347,9 +345,9 @@ def _config_file_callback(ctx, param, value):  # pylint: disable=unused-argument
     import anyconfig  # pylint: disable=import-outside-toplevel
 
     ctx.default_map = ctx.default_map or {}
-    section = ctx.info_name
-
     if value:
+        section = ctx.info_name
+
         config = anyconfig.load(value)[section]
         ctx.default_map.update(config)
 

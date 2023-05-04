@@ -308,9 +308,8 @@ class TestKedroSession:
             "session_id": fake_session_id,
             "package_name": mock_package_name,
             "cli": expected_cli_data,
+            "username": fake_username,
         }
-
-        expected_store["username"] = fake_username
 
         assert session.store == expected_store
         assert session.load_context() is mock_context_class.return_value

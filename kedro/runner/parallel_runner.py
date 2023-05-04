@@ -229,16 +229,15 @@ class ParallelRunner(AbstractRunner):
                 f"decorated using functools.wraps()."
             )
 
-        memory_datasets = []
-        for name, data_set in data_sets.items():
+        if memory_datasets := [
+            name
+            for name, data_set in data_sets.items()
             if (
                 name in pipeline.all_outputs()
                 and isinstance(data_set, MemoryDataSet)
                 and not isinstance(data_set, BaseProxy)
-            ):
-                memory_datasets.append(name)
-
-        if memory_datasets:
+            )
+        ]:
             raise AttributeError(
                 f"The following data sets are memory data sets: "
                 f"{sorted(memory_datasets)}\n"

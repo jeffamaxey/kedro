@@ -220,7 +220,7 @@ def dummy_context(
 ):  # pylint: disable=unused-argument
     configure_project(MOCK_PACKAGE_NAME)
     config_loader = ConfigLoader(str(tmp_path / "conf"), env=env)
-    context = KedroContext(
+    yield KedroContext(
         MOCK_PACKAGE_NAME,
         str(tmp_path),
         config_loader=config_loader,
@@ -228,8 +228,6 @@ def dummy_context(
         env=env,
         extra_params=extra_params,
     )
-
-    yield context
     pipelines.configure()
 
 
